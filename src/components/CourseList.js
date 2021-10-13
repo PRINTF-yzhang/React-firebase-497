@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { terms, getCourseTerm } from '../utilities/times';
 import Course from './Course.js';
+import { useUserState,signInWithGoogle,signOut } from '../utilities/firebase';
 
 const CourseList = ({ courses }) => {
     const [term, setTerm] = useState('Fall');
@@ -26,20 +27,41 @@ const TermButton = ({term, setTerm, checked}) => (
     <>
       <input type="radio" id={term} className="btn-check" checked={checked} autoComplete="off"
         onChange={() => setTerm(term)} />
-      <label class="btn btn-success m-1 p-2" htmlFor={term}>
+      <label className="btn btn-success m-1 p-2" htmlFor={term}>
       { term }
       </label>
     </>
   );
   
-const TermSelector = ({term, setTerm}) => (
-    <div className="btn-group">
-    { 
-      Object.values(terms).map(value => (
-        <TermButton key={value} term={value} setTerm={setTerm} checked={value === term} />
-      ))
-    }
-    </div>
+const SignInButton = () => (
+    <button className="btn btn-secondary btn-sm"
+        onClick={() => signInWithGoogle()}>
+      Sign In
+    </button>
   );
+  
+const SignOuButton = () => (
+    <button className="btn btn-secondary btn-sm"
+        onClick={() => signOut()}>
+      Sign Out
+    </button>
+  );
+
+const TermSelector = ({term, setTerm}) => {
+    const [user] = useUserState();
+    return(
+      <div className="btn-toolbar justify-content-between">
+        <div className="btn-group">
+        { 
+          Object.values(terms).map(
+            value => <TermButton key={value} term={value} setTerm={setTerm} checked={value === term} />
+          )
+        }
+        </div>
+        { user ? <SignOuButton /> : <SignInButton /> }
+      </div>
+    );
+  };
+
 
 export default CourseList;
